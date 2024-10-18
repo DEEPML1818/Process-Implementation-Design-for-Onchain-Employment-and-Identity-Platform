@@ -31,22 +31,35 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // POST route for face image upload
-app.post('/upload-face', upload.single('faceImage'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No face image uploaded' });
-  }
-  
-  const faceImage = req.file.path; // Path to the uploaded image
-  console.log('Face Image Uploaded:', faceImage); // Debugging line
-  
-  // Here, you'd process the face image for recognition or verification
-  
-  res.json({ message: 'Face image uploaded successfully!', imageUrl: `/uploads/${req.file.filename}` });
+const IMAGE_FOLDER = path.join(__dirname, './uploads'); // Your image folder path
+
+app.get('/images', (req, res) => {
+  fs.readdir(IMAGE_FOLDER, (err, files) => {
+    if (err) {
+      return res.status(500).send('Error reading directory');
+    }
+    // Filter out non-image files if needed
+    const imageUrls = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file))
+                           .map(file => `/images/${file}`);
+    res.json(imageUrls);
+  });
 });
 
-// Serve face image files statically
+// Endpoint for face image upload (optional if you want a separate endpoint)
+app.post('/upload', upload.single('faceImage'), (req, res) => {
+  res.json({ message: 'Image uploaded successfully!' });
+});
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
+// Endpoint to get reference image URL or other data
+app.post('/data', upload.single('faceImage'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  res.json({ referenceImageUrl: `/uploads/${req.file.filename}` });
+});
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
