@@ -1,37 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as faceapi from 'face-api.js';
 import Webcam from 'react-webcam';
-import { useNavigate } from 'react-router-dom';
+import { ethers } from 'ethers';
+import { verifyWebAuthnAssertion } from '../utils/webAuthnUtils'; // Import WebAuthn utility
+import { useNavigate } from 'react-router-dom'; // For navigation
 
-const FaceVerification = () => {
-  const webcamRef = useRef(null);
-  const [modelsLoaded, setModelsLoaded] = useState(false);
-  const [isVerified, setIsVerified] = useState(null);
+const MODEL_URL = '/models'; // Path to the face-api models
+
+const Login = () => {
+  const [walletAddress, setWalletAddress] = useState(null);
   const [error, setError] = useState(null);
+  const [isVerified, setIsVerified] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
   const [referenceDescriptors, setReferenceDescriptors] = useState([]);
-  const navigate = useNavigate(); // Hook for navigation after successful login
+  const [isFaceVerified, setIsFaceVerified] = useState(null);
+  const webcamRef = useRef(null);
+  const navigate = useNavigate();
 
-  const MODEL_URL = '/models'; 
-
+  // Load face-api models
   useEffect(() => {
     const loadModels = async () => {
       try {
-        console.log('Loading models...');
+        console.log('Loading face recognition models...');
         await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL) // Expression recognition
-
         setModelsLoaded(true);
-        console.log('Models loaded successfully');
+        console.log('Face recognition models loaded');
       } catch (err) {
-        console.error('Error loading models:', err);
-        setError('Error loading models');
+        console.error('Error loading face recognition models:', err);
+        setError('Error loading face recognition models');
       }
     };
+
     loadModels();
   }, []);
 
+  // Load reference images and descriptors (for face comparison)
   useEffect(() => {
     const importAll = (r) => {
       let images = [];
@@ -40,6 +45,7 @@ const FaceVerification = () => {
     };
 
     const images = importAll(require.context('../Job-marketplace-backend/uploads', false, /\.(jpg|jpeg|png|gif)$/));
+    
     const loadReferenceImages = async () => {
       const descriptors = [];
       for (const img of images) {
@@ -61,7 +67,49 @@ const FaceVerification = () => {
     }
   }, [modelsLoaded]);
 
-  const captureAndVerify = async () => {
+  // Connect Wallet
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const accounts = await provider.send('eth_requestAccounts', []);
+        const walletAddress = accounts[0];
+        setWalletAddress(walletAddress);
+        console.log('Wallet connected:', walletAddress);
+      } catch (error) {
+        console.error('Error connecting wallet:', error);
+        setError('Error connecting wallet');
+      }
+    } else {
+      console.error('Ethereum wallet not detected');
+      setError('Ethereum wallet not detected');
+    }
+  };
+
+  // Login with WebAuthn (Fingerprint)
+  const handleWebAuthnLogin = async () => {
+    if (!walletAddress) {
+      setError('Please connect your wallet.');
+      return;
+    }
+
+    try {
+      const verified = await verifyWebAuthnAssertion(walletAddress);
+      if (verified) {
+        console.log('Fingerprint verified successfully!');
+        handleFaceVerification(); // Proceed to face verification after fingerprint success
+      } else {
+        setIsVerified(false);
+        console.log('Fingerprint verification failed.');
+      }
+    } catch (error) {
+      console.error('Error during WebAuthn login:', error);
+      setError('Failed to login with WebAuthn');
+    }
+  };
+
+  // Capture face image and verify against reference images
+  const handleFaceVerification = async () => {
     if (webcamRef.current && modelsLoaded && referenceDescriptors.length > 0) {
       const capturedImage = webcamRef.current.getScreenshot();
       const img = new Image();
@@ -76,34 +124,37 @@ const FaceVerification = () => {
           const minDistance = Math.min(...distances);
           const threshold = 0.5; // Set threshold for face similarity
           if (minDistance < threshold) {
-            setIsVerified(true);
+            setIsFaceVerified(true);
             console.log('Face verified successfully!');
             setTimeout(() => {
               navigate('/dashboard'); // Navigate to dashboard after successful verification
             }, 1000);
           } else {
-            setIsVerified(false);
+            setIsFaceVerified(false);
             console.log('Face verification failed.');
           }
         }
       };
     } else {
-      setError('Please ensure models are loaded and descriptors are available.');
+      setError('Please ensure models are loaded and face descriptors are available.');
     }
   };
 
   return (
     <div>
-      <h1>Login with Face Verification</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {isVerified === true ? (
-        <p style={{ color: 'green' }}>Login successful! Redirecting...</p>
-      ) : isVerified === false ? (
-        <p style={{ color: 'red' }}>Face not recognized. Please try again.</p>
-      ) : (
-        <p>Please capture your face for verification.</p>
-      )}
+      <h2>Login</h2>
+      <button onClick={connectWallet}>
+        {walletAddress ? `Wallet Connected: ${walletAddress}` : "Connect Wallet"}
+      </button>
 
+      <h3>Step 1: Fingerprint (WebAuthn) Verification</h3>
+      <button onClick={handleWebAuthnLogin}>
+        {isVerified ? "Fingerprint Verified" : "Login with Fingerprint"}
+      </button>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <h3>Step 2: Face Verification</h3>
       <Webcam
         audio={false}
         ref={webcamRef}
@@ -111,9 +162,14 @@ const FaceVerification = () => {
         width="640"
         height="480"
       />
-      <button onClick={captureAndVerify}>Login with Face</button>
+      <button onClick={handleFaceVerification}>
+        {isFaceVerified ? "Face Verified" : "Login with Face"}
+      </button>
+
+      {isFaceVerified === true && <p style={{ color: 'green' }}>Face verified successfully! Redirecting...</p>}
+      {isFaceVerified === false && <p style={{ color: 'red' }}>Face verification failed. Try again.</p>}
     </div>
   );
 };
 
-export default FaceVerification;
+export default Login;

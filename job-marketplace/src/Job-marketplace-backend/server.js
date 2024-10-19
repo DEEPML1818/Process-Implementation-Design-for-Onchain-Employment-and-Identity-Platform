@@ -3,12 +3,15 @@ const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+const bodyParser = require('body-parser');
+const { registerWebAuthnCredential, verifyWebAuthnAssertion } = require('../utils/webAuthnUtils'); // WebAuthn helpers
 
 const app = express();
 const port = 5000;
 
 // Middleware
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
 // CORS Middleware
@@ -45,12 +48,43 @@ app.get('/images', (req, res) => {
   });
 });
 
-// Endpoint for face image upload (optional if you want a separate endpoint)
-app.post('/upload', upload.single('faceImage'), (req, res) => {
-  res.json({ message: 'Image uploaded successfully!' });
+// POST route for uploading face image along with WebAuthn registration
+app.post('/upload', upload.single('faceImage'), async (req, res) => {
+  const { walletAddress, credential } = req.body;
+  
+  // Check if face image is uploaded
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  // Register WebAuthn credential
+  try {
+    const biometricHash = credential.id; // Using the credential ID from WebAuthn
+    await registerWebAuthnCredential(biometricHash, walletAddress);  // Register the credential
+
+    // Return the uploaded file URL along with the WebAuthn registration success
+    res.json({ 
+      message: 'Biometric data and face image registered successfully!', 
+      referenceImageUrl: `/uploads/${req.file.filename}` 
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error registering biometric data', details: error });
+  }
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Endpoint to verify WebAuthn biometric credentials
+app.post('/verify', async (req, res) => {
+  const { assertion, walletAddress } = req.body;
+
+  try {
+    const verified = await verifyWebAuthnAssertion(assertion, walletAddress);
+    res.status(200).json({ verified });
+  } catch (error) {
+    res.status(500).json({ error: 'Error verifying biometric data', details: error });
+  }
+});
 
 
 // Endpoint to get reference image URL or other data
@@ -60,6 +94,9 @@ app.post('/data', upload.single('faceImage'), (req, res) => {
   }
   res.json({ referenceImageUrl: `/uploads/${req.file.filename}` });
 });
+
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

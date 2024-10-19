@@ -1,42 +1,44 @@
-// BiometricTest.js
 import React, { useState } from 'react';
-import CryptoJS from 'crypto-js';
-import { registerUser, verifyUser } from '../utils/biometricUtils';
+import { createCredential, getAssertion, registerWebAuthnCredential, verifyWebAuthnAssertion } from '../utils/webAuthnUtils';
 
-const BiometricTest = () => {
-  const [biometricData, setBiometricData] = useState('');
-  const [biometricHash, setBiometricHash] = useState('');
+const BiometricTest = ({ walletAddress }) => {
   const [verificationResult, setVerificationResult] = useState(null);
 
-  // Simulate capturing biometric data and hashing it
-  const handleCapture = () => {
-    const simulatedData = "user-fingerprint-or-retina-scan";  // Simulated biometric data
-    const hash = CryptoJS.SHA256(simulatedData).toString();
-    setBiometricData(simulatedData);
-    setBiometricHash(hash);
-  };
-
+  // Handle biometric registration
   const handleRegister = async () => {
-    if (biometricHash) {
-      await registerUser(biometricHash);
-      alert('Biometric data registered on the blockchain.');
+    try {
+      // Create WebAuthn credential (using fingerprint)
+      const credential = await createCredential(walletAddress);
+      
+      // Register credential on the server or chain (store on-chain or in a database)
+      await registerWebAuthnCredential(credential, walletAddress);
+      
+      console.log('Biometric data registered successfully');
+    } catch (error) {
+      console.error('Error during registration:', error);
     }
   };
 
+  // Handle biometric verification (fingerprint)
   const handleVerify = async () => {
-    const isVerified = await verifyUser(biometricHash);
-    setVerificationResult(isVerified ? 'Verified' : 'Not Verified');
+    try {
+      // Get WebAuthn assertion for biometric verification (fingerprint)
+      const assertion = await getAssertion();
+      
+      // Verify assertion on the server or chain (verify on-chain)
+      const isVerified = await verifyWebAuthnAssertion(assertion, walletAddress);
+      
+      setVerificationResult(isVerified ? 'Verified' : 'Not Verified');
+    } catch (error) {
+      console.error('Error during verification:', error);
+      setVerificationResult('Not Verified');
+    }
   };
 
   return (
     <div>
-      <button onClick={handleCapture}>Capture Biometric Data</button>
-      {biometricData && <p>Biometric Data: {biometricData}</p>}
-      {biometricHash && <p>Biometric Hash: {biometricHash}</p>}
-      
       <button onClick={handleRegister}>Register Biometric Data</button>
       <button onClick={handleVerify}>Verify Biometric Data</button>
-      
       {verificationResult && <p>Verification Result: {verificationResult}</p>}
     </div>
   );

@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import { ethers } from 'ethers';
 import Webcam from 'react-webcam';
+import { registerWebAuthnCredential } from '../utils/webAuthnUtils'; // WebAuthn utility
 import './Home.css';
 
-const Register = () => {
+const Register = ({ onLogin }) => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -13,7 +14,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const webcamRef = useRef(null);
 
-  const MODEL_URL = '/models'; // Replace with the correct model path
+  const MODEL_URL = '/models'; // Path for face recognition models
 
   // Load face-api models
   useEffect(() => {
@@ -59,7 +60,7 @@ const Register = () => {
     }
   };
 
-  // Register user by pairing face image with wallet address
+  // Register user with face image, wallet address, and WebAuthn (Fingerprint)
   const handleRegister = async () => {
     if (!walletAddress) {
       setError('Please connect your wallet.');
@@ -75,20 +76,34 @@ const Register = () => {
     setError(null);
 
     try {
+      // WebAuthn credential creation (for fingerprint)
+      const credential = await registerWebAuthnCredential(walletAddress); // Fingerprint credential creation
+
+      // Prepare image data
       const imageBlob = await fetch(capturedImage).then((res) => res.blob());
 
+      // Prepare form data
       const formData = new FormData();
       formData.append('walletAddress', walletAddress);
       formData.append('faceImage', imageBlob, 'capturedImage.jpg');
+      formData.append('credential', JSON.stringify(credential));  // WebAuthn credential
 
-      // Simulate registration request
-      // Replace the below line with your backend endpoint for registering users
-      console.log('Registering user with wallet address:', walletAddress);
-      setTimeout(() => {
+      // Send registration request
+      const response = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.message) {
         setIsRegistered(true);
         setLoading(false);
         console.log('Registration successful');
-      }, 1500);
+        onLogin();  // Log the user in after successful registration
+      } else {
+        setError('Registration failed. Try again.');
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Error during registration:', error);
       setError('Error during registration');
@@ -98,37 +113,40 @@ const Register = () => {
 
   return (
     <div className="container">
-    <h2>Register (Sign-Up)</h2>
-    
-    <div className="wallet-connection">
-      <h3>Step 1: Connect Wallet</h3>
-      <button onClick={connectWallet}>
-        {walletAddress ? `Wallet Connected: ${walletAddress}` : "Connect Wallet"}
+      <h2>Register (Sign-Up)</h2>
+
+      <div className="wallet-connection">
+        <h3>Step 1: Connect Wallet</h3>
+        <button onClick={connectWallet}>
+          {walletAddress ? `Wallet Connected: ${walletAddress}` : "Connect Wallet"}
+        </button>
+      </div>
+
+      <div className="face-recognition">
+        <h3>Step 2: Face Recognition</h3>
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          className="webcam"
+        />
+        <button onClick={captureImage}>Capture Face</button>
+
+        {capturedImage && (
+          <div className="captured-image">
+            <img src={capturedImage} alt="Captured Face" />
+          </div>
+        )}
+      </div>
+
+      <button className="register-btn" onClick={handleRegister} disabled={loading}>
+        {loading ? 'Registering...' : 'Complete Registration'}
       </button>
+
+      {error && <p className="error">{error}</p>}
+      {isRegistered && <p className="success">Registration successful!</p>}
     </div>
-
-    <div className="face-recognition">
-      <h3>Step 2: Face Recognition</h3>
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        className="webcam"
-      />
-      <button onClick={captureImage}>Capture Face</button>
-
-      {capturedImage && (
-        <div className="captured-image">
-          <img src={capturedImage} alt="Captured Face" />
-        </div>
-      )}
-    </div>
-
-    <button className="register-btn" onClick={handleRegister}>
-      Complete Registration
-    </button>
-  </div>
-);
+  );
 };
 
 export default Register;

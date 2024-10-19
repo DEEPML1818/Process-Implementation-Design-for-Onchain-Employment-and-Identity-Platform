@@ -12,6 +12,7 @@ import JobPosting from './JobPosting'; // Job Posting component
 import BiometricTest from './components/BiometricTest'; // Biometric Test component
 import './App.css';  // Import the App CSS for the background theme
 
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
