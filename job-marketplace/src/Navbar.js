@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ethers } from 'ethers'; // Add this import
 import './Navbar.css';
 
-function Navbar({ wallet, address, connectMetaMask, connectCoinbase, providerType }) {
+function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);  // Modal state for wallet selection
+    const [networkName, setNetworkName] = useState(''); // State for network name
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -17,6 +19,21 @@ function Navbar({ wallet, address, connectMetaMask, connectCoinbase, providerTyp
     const closeModal = () => {
         setModalOpen(false);
     };
+
+    // Function to get the current network name
+    const fetchNetworkName = async () => {
+        if (wallet && window.ethereum) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const network = await provider.getNetwork();
+            setNetworkName(network.name.charAt(0).toUpperCase() + network.name.slice(1)); // Capitalize the network name
+        }
+    };
+
+    useEffect(() => {
+        if (wallet) {
+            fetchNetworkName();
+        }
+    }, [wallet]);
 
     return (
         <>
@@ -49,7 +66,9 @@ function Navbar({ wallet, address, connectMetaMask, connectCoinbase, providerTyp
                     {!wallet ? (
                         <button onClick={openModal} className="wallet-btn">Connect Wallet</button>
                     ) : (
-                        <p className="wallet-address">Connected ({providerType}): {address.slice(0, 6)}...{address.slice(-4)}</p>
+                        <p className="wallet-address">
+                            {networkName} Network
+                        </p>
                     )}
                 </div>
             </nav>
