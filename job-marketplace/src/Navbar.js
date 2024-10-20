@@ -1,68 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ethers } from 'ethers';
 import './Navbar.css';
 
-function Navbar() {
+function Navbar({ wallet, address, connectMetaMask, connectCoinbase, providerType }) {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [wallet, setWallet] = useState(null);
-    const [address, setAddress] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);  // Modal state for wallet selection
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
     };
 
-    // Function to connect to the user's wallet
-    async function connectWallet() {
-        if (window.ethereum) {
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send('eth_requestAccounts', []);
-                const signer = provider.getSigner();
-                const userAddress = await signer.getAddress();
-                setWallet(signer);
-                setAddress(userAddress);
-            } catch (error) {
-                console.error('Wallet connection failed:', error);
-            }
-        } else {
-            alert('Please install MetaMask!');
-        }
-    }
+    const openModal = () => {
+        setModalOpen(true);
+    };
 
-    useEffect(() => {
-        // Auto-connect wallet if already connected
-        if (window.ethereum && window.ethereum.selectedAddress) {
-            connectWallet();
-        }
-    }, []);
+    const closeModal = () => {
+        setModalOpen(false);
+    };
 
     return (
-        <nav className="navbar">
-            <div className="logo">
-                <h2>Job Marketplace</h2>
-            </div>
-            <div className="menu-toggle" onClick={toggleMenu}>
-                {/* Hamburger Icon */}
-                <span className="hamburger"></span>
-                <span className="hamburger"></span>
-                <span className="hamburger"></span>
-            </div>
-            <ul className={`nav-links ${menuOpen ? 'open' : ''}`}>
-                <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
-                <li><Link to="/job-listings" onClick={toggleMenu}>Jobs</Link></li>
-                <li><Link to="/post-job" onClick={toggleMenu}>Post a Job</Link></li>
-                <li><Link to="/chat/1" onClick={toggleMenu}>Chats</Link></li>
-                <li><Link to="/previous-chats" onClick={toggleMenu}>Old Chats</Link></li>
-            </ul>
-            <div className="wallet">
-                {!wallet ? (
-                    <button onClick={connectWallet}>Connect Wallet</button>
-                ) : (
-                    <p>Connected: {address.slice(0, 6)}...{address.slice(-4)}</p>
-                )}
-            </div>
-        </nav>
+        <>
+            <nav className="navbar">
+                <div className="logo">
+                    <h2>Job Marketplace</h2>
+                </div>
+
+                {/* Menu Toggle for mobile responsiveness */}
+                <div className="menu-toggle" onClick={toggleMenu}>
+                    <span className="hamburger"></span>
+                    <span className="hamburger"></span>
+                    <span className="hamburger"></span>
+                </div>
+
+                {/* Navigation Links */}
+                <ul className={`nav-links ${menuOpen ? 'open' : ''}`}>
+                    <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
+                    <li><Link to="/job-listings" onClick={toggleMenu}>Job Listings</Link></li>
+                    <li><Link to="/post-job" onClick={toggleMenu}>Post Job</Link></li>
+                    <li><Link to="/chat/1" onClick={toggleMenu}>Chats</Link></li>
+                    <li><Link to="/previous-chats" onClick={toggleMenu}>Previous Chats</Link></li>
+                    <li><Link to="/verify" onClick={toggleMenu}>Login</Link></li>
+                    <li><Link to="/register" onClick={toggleMenu}>Sign Up</Link></li>
+                    <li><Link to="/biometric-test" onClick={toggleMenu}>Biometric Test</Link></li>
+                </ul>
+
+                {/* Wallet Connection */}
+                <div className="wallet">
+                    {!wallet ? (
+                        <button onClick={openModal} className="wallet-btn">Connect Wallet</button>
+                    ) : (
+                        <p className="wallet-address">Connected ({providerType}): {address.slice(0, 6)}...{address.slice(-4)}</p>
+                    )}
+                </div>
+            </nav>
+
+            {/* Modal for Wallet Selection */}
+            {modalOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal" onClick={e => e.stopPropagation()}>
+                        <h3>Select a Wallet</h3>
+                        <button onClick={() => { connectMetaMask(); closeModal(); }} className="wallet-option-btn">MetaMask</button>
+                        <button onClick={() => { connectCoinbase(); closeModal(); }} className="wallet-option-btn">Coinbase Wallet</button>
+                        <button onClick={closeModal} className="close-btn">Close</button>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
