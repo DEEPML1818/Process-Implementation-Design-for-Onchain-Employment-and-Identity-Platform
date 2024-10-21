@@ -1,6 +1,6 @@
 Welcome to MetaTasker
 
-<div style="position: relative; padding-bottom: 43.125%; height: 0;"><iframe src="https://www.loom.com/embed/6b781642c0264f8ba1942f9242bac0ec?sid=a1b6a402-2386-4263-a9ed-6732b08f9d8b" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+https://www.loom.com/embed/6b781642c0264f8ba1942f9242bac0ec?sid=a1b6a402-2386-4263-a9ed-6732b08f9d8b
 
 Deploying Security contract...
 Security contract deployed to: 0x8196069141fF70a112bd13f3692bB7F636E5CBc9
