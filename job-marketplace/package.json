@@ -41,7 +41,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "server": "node ./src/Job-marketplace-backend/server.js",
-    "dev": "concurrently \"npm run server\" \"npm run start\"",
+    "dev": "concurrently \"npm run start\" \"npm run server\"",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
