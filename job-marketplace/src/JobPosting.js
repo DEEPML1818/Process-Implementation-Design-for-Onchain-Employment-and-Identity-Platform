@@ -4,7 +4,7 @@ import abimultisigfac from './Factory_multisig.json';
 import { useNavigate } from 'react-router-dom';
 import './job.css';  // Importing CSS file for styling
 
-function JobPosting({ wallet, onJobPosted , readOnly  }) {
+function JobPosting({ wallet, onJobPosted, readOnly }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [milestones, setMilestones] = useState("");
@@ -18,13 +18,19 @@ function JobPosting({ wallet, onJobPosted , readOnly  }) {
     const jobData = { title, description, milestones, payment };
 
     try {
-      // Creating a multisig wallet using the factory contract
       const FACTORY_ABI = abimultisigfac;
-      const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";
+      const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";  // Update with your factory contract address
       const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
 
-      // Replace these parameters as needed to match your contract
-      const transaction = await factoryContract.create([wallet.getAddress()], 1); // Placeholder multisig params
+      // Job-related parameters
+      const owners = [await wallet.getAddress()]; // Example: the employer is the only owner
+      const requiredConfirmations = 1; // Placeholder for required multisig confirmations
+
+      // Convert payment to wei
+      const paymentInWei = ethers.utils.parseEther(payment);
+
+      // Call the createJob function
+      const transaction = await factoryContract.createJob(owners, requiredConfirmations, title, description, milestones, paymentInWei);
       const receipt = await transaction.wait();
 
       // Notify parent component (JobListings) that a job has been posted
@@ -33,7 +39,7 @@ function JobPosting({ wallet, onJobPosted , readOnly  }) {
       // Redirect to job listings after posting
       navigate('/job-listings');
 
-      alert(`Job posted! Contract: ${receipt.contractAddress}`);
+      alert(`Job posted! Multisig Wallet Address: ${receipt.events[0].args.wallet}`);
     } catch (error) {
       console.error("Error posting job:", error);
       alert("Error posting job. Please try again.");
@@ -41,7 +47,6 @@ function JobPosting({ wallet, onJobPosted , readOnly  }) {
   }
 
   return (
-
     <><div>
       {readOnly ? (
         <p>You are in read-only mode. Please log in to post a job.</p>
@@ -57,7 +62,7 @@ function JobPosting({ wallet, onJobPosted , readOnly  }) {
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
           <label>Milestones:</label>
           <textarea value={milestones} onChange={(e) => setMilestones(e.target.value)} />
-          <label>Payment:</label>
+          <label>Payment (in ETH):</label>
           <input value={payment} onChange={(e) => setPayment(e.target.value)} />
 
           <button type="submit">Post Job</button>

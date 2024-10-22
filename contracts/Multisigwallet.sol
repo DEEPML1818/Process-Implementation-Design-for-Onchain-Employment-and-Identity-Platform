@@ -5,7 +5,7 @@ import "./Security.sol";  // Import the Security contract
 /// @title Multisignature wallet - Allows multiple parties to agree on transactions before execution.
 /// @author Stefan George - <stefan.george@consensys.net>
 contract MultiSigWallet {
-     Security public security;  // Reference to the Security contract
+     Security_MetaTasker public security;  // Reference to the Security contract
 
     
 
