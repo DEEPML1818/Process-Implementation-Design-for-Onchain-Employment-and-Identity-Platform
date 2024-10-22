@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.4.0;
 
-contract Security {
+contract Security_MetaTasker {
     address public owner;
     mapping(address => bool) public authorized;
 

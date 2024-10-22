@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/BiometricStorage.sol": {
-      "lastModificationDate": 1729116909994,
-      "contentHash": "727b1a0dfd1316c607cd62c8f0552169",
+      "lastModificationDate": 1729596272807,
+      "contentHash": "8a1ed1091a633cd2eede6d1f8dcd057c",
       "sourceName": "contracts/BiometricStorage.sol",
       "solcConfig": {
         "version": "0.4.25",
@@ -33,12 +33,12 @@
         "^0.4.0"
       ],
       "artifacts": [
-        "BiometricStorage"
+        "BiometricStorage_MetaTasker"
       ]
     },
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/Factory.sol": {
-      "lastModificationDate": 1729006949740,
-      "contentHash": "6c2db1812b8326baad8da224f7b9e298",
+      "lastModificationDate": 1729596317615,
+      "contentHash": "92e0b9b943b58e23df33a5c9382f081b",
       "sourceName": "contracts/Factory.sol",
       "solcConfig": {
         "version": "0.4.25",
@@ -75,8 +75,8 @@
       ]
     },
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/Security.sol": {
-      "lastModificationDate": 1729006949740,
-      "contentHash": "0ad74444c8c8c632e347e44d039fd48e",
+      "lastModificationDate": 1729596262155,
+      "contentHash": "d37adf2e00fa4e790aeeed6d3368c609",
       "sourceName": "contracts/Security.sol",
       "solcConfig": {
         "version": "0.4.25",
@@ -106,12 +106,12 @@
         "^0.4.0"
       ],
       "artifacts": [
-        "Security"
+        "Security_MetaTasker"
       ]
     },
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/Factory_multisig.sol": {
-      "lastModificationDate": 1729009898252,
-      "contentHash": "411df8f1f4451c0e4ee640d310500396",
+      "lastModificationDate": 1729605719458,
+      "contentHash": "3830325c6cf06601cba9a5d20f6e7c54",
       "sourceName": "contracts/Factory_multisig.sol",
       "solcConfig": {
         "version": "0.4.25",
@@ -139,18 +139,19 @@
       "imports": [
         "./Factory.sol",
         "./Multisigwallet.sol",
-        "./Security.sol"
+        "./Security.sol",
+        "./WorkerInfo.sol"
       ],
       "versionPragmas": [
-        "^0.4.15"
+        "^0.4.0"
       ],
       "artifacts": [
         "MultiSigWalletFactory"
       ]
     },
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/Multisigwallet.sol": {
-      "lastModificationDate": 1729006949740,
-      "contentHash": "ba5ff579f1d23563fc053f8ffb7e0a96",
+      "lastModificationDate": 1729596465279,
+      "contentHash": "191384d0604b17e470e9cfebeca2c8d7",
       "sourceName": "contracts/Multisigwallet.sol",
       "solcConfig": {
         "version": "0.4.25",
@@ -253,6 +254,43 @@
       ],
       "artifacts": [
         "SecurityContract"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/contracts/WorkerInfo.sol": {
+      "lastModificationDate": 1729605342022,
+      "contentHash": "ad4058b53dc4a56c4484ea78db25f1e8",
+      "sourceName": "contracts/WorkerInfo.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Factory_multisig.sol"
+      ],
+      "versionPragmas": [
+        "^0.4.0"
+      ],
+      "artifacts": [
+        "WorkerInfo_MetaTasker"
       ]
     }
   }

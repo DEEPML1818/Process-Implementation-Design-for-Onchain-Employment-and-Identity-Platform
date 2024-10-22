@@ -3,6 +3,7 @@ import * as faceapi from 'face-api.js';
 import { ethers } from 'ethers';
 import Webcam from 'react-webcam';
 import { createCredential } from '../utils/webAuthnUtils'; // WebAuthn utility
+import workerInfoABI from './WorkerInfo.json'; // Import your ABI
 import './Home.css';
 
 const Register = ({ onLogin }) => {
@@ -12,9 +13,11 @@ const Register = ({ onLogin }) => {
   const [error, setError] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [skillset, setSkillset] = useState('');
   const webcamRef = useRef(null);
 
   const MODEL_URL = '/models'; // Replace with the correct model path
+  const WORKER_INFO_ADDRESS = "YOUR_WORKER_INFO_CONTRACT_ADDRESS"; // Replace with your contract address
 
   // Load face-api models
   useEffect(() => {
@@ -72,8 +75,13 @@ const Register = ({ onLogin }) => {
       return;
     }
 
+    if (!skillset) {
+      setError('Please enter your skillset.');
+      return;
+    }
+
     setLoading(true);
-    setError(null);
+    setError(null); // Clear previous errors
 
     try {
       // WebAuthn credential creation (for fingerprint)
@@ -82,11 +90,11 @@ const Register = ({ onLogin }) => {
       // Fetch the image blob from the captured image
       const imageBlob = await fetch(capturedImage).then((res) => res.blob());
 
-      // Prepare the form data
+      // Prepare the form data for face image upload
       const formData = new FormData();
       formData.append('walletAddress', walletAddress);
       formData.append('faceImage', imageBlob, 'capturedImage.jpg');
-      formData.append('credential', JSON.stringify(credential));  // WebAuthn credential
+      formData.append('credential', JSON.stringify(credential)); // WebAuthn credential
 
       // Simulate registration request
       const response = await fetch('https://process-implementation-design-for-q3i5.onrender.com/upload', {
@@ -96,18 +104,36 @@ const Register = ({ onLogin }) => {
 
       const result = await response.json();
       if (result.message) {
+        // Register skillset in the WorkerInfo contract
+        await registerSkillset(skillset);
         setIsRegistered(true);
         setLoading(false);
         console.log('Registration successful');
-        onLogin();  // Log the user in after successful registration
+        onLogin(); // Log the user in after successful registration
       } else {
         setError('Registration failed. Try again.');
         setLoading(false);
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setError('Error during registration');
+      setError(error.message || 'An error occurred during registration.'); // Ensure error is a string
       setLoading(false);
+    }
+  };
+
+  // Register skillset in WorkerInfo contract
+  const registerSkillset = async (skillset) => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const workerInfoContract = new ethers.Contract(WORKER_INFO_ADDRESS, workerInfoABI, signer);
+
+    try {
+      const tx = await workerInfoContract.registerWorker(skillset);
+      await tx.wait();
+      alert('Skillset successfully registered!');
+    } catch (error) {
+      console.error('Error registering skillset:', error);
+      setError('Error registering skillset');
     }
   };
 
@@ -137,6 +163,16 @@ const Register = ({ onLogin }) => {
             <img src={capturedImage} alt="Captured Face" />
           </div>
         )}
+      </div>
+
+      <div className="skillset-input">
+        <h3>Step 3: Enter Your Skillset</h3>
+        <input
+          type="text"
+          value={skillset}
+          onChange={(e) => setSkillset(e.target.value)}
+          placeholder="Enter your skillset"
+        />
       </div>
 
       <button className="register-btn" onClick={handleRegister} disabled={loading}>

@@ -22,7 +22,16 @@ function JobMarketplace({ wallet }) {
             for (let i = 0; i < limit; i++) {
                 try {
                     const jobAddress = await factoryContract.getInstantiation(i);
-                    fetchedJobs.push({ contract: jobAddress });
+                    const jobDetails = await factoryContract.getJob(i);  // Fetch job details by ID
+                    fetchedJobs.push({
+                        contract: jobAddress,
+                        title: jobDetails.title,
+                        description: jobDetails.description,
+                        milestones: jobDetails.milestones,
+                        payment: ethers.utils.formatEther(jobDetails.payment),  // Format to ETH
+                        employer: jobDetails.employer,
+                        isActive: jobDetails.isActive,
+                    });
                 } catch (error) {
                     console.error(`Failed to fetch instantiation at index ${i}:`, error);
                 }
@@ -35,7 +44,6 @@ function JobMarketplace({ wallet }) {
 
     // Simulate job contract connection (replace with real connection logic)
     async function connectToJob(jobAddress) {
-        // Here you should check the actual connection logic for employer and worker.
         setConnectedContracts([...connectedContracts, jobAddress]);
         alert(`Connected to job contract: ${jobAddress}`);
     }
@@ -46,8 +54,15 @@ function JobMarketplace({ wallet }) {
             <ul>
                 {jobs.map((job, index) => (
                     <li key={index}>
-                        <p>Job Contract: {job.contract}</p>
+                        <p><strong>Job Title:</strong> {job.title}</p>
+                        <p><strong>Description:</strong> {job.description}</p>
+                        <p><strong>Milestones:</strong> {job.milestones}</p>
+                        <p><strong>Payment:</strong> {job.payment} ETH</p>
+                        <p><strong>Employer:</strong> {job.employer}</p>
+                        <p><strong>Status:</strong> {job.isActive ? "Active" : "Inactive"}</p>
+                        <p><strong>Job Contract:</strong> {job.contract}</p>
                         <button onClick={() => connectToJob(job.contract)}>Connect</button>
+
                         {/* Only show chat if connected */}
                         {connectedContracts.includes(job.contract) && <Chat jobAddress={job.contract} />}
                     </li>

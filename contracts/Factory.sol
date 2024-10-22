@@ -2,11 +2,11 @@ pragma solidity ^0.4.15;
 
 import "./Security.sol";  // Import the Security contract
 contract Factory {
-    Security public security;  // Reference to the Security contract
+    Security_MetaTasker public security;  // Reference to the Security contract
    
     // Constructor takes the address of the Security contract
     constructor(address _securityContract) {
-        security = Security(_securityContract);  // Set the security contract
+        security = Security_MetaTasker(_securityContract);  // Set the security contract
     }
 
         // Modifier to check if a user is authorized

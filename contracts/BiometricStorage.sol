@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.4.0;
 
-contract BiometricStorage {
+contract BiometricStorage_MetaTasker {
     struct User {
         address userAddress;
         string biometricHash;
