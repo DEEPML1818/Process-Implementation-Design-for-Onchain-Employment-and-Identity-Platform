@@ -14,9 +14,15 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
+// Ensure the uploads directory exists
+const IMAGE_FOLDER = path.join(__dirname, 'uploads');
+if (!fs.existsSync(IMAGE_FOLDER)) {
+  fs.mkdirSync(IMAGE_FOLDER);
+}
+
 // CORS Middleware
 app.use(cors({
-  origin: '*', // Allow all origins
+  origin: '*', // Allow all origins, but you can restrict this for security.
   methods: ['GET', 'POST'], // Allow specific methods
   allowedHeaders: ['Content-Type'], // Allow specific headers
 }));
@@ -31,27 +37,42 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+// Validate file types (accept only images)
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true); // Accept image files
+  } else {
+    cb(new Error('Invalid file type. Only image files are allowed.'), false);
+  }
+};
 
-// POST route for face image upload
-const IMAGE_FOLDER = path.join(__dirname, './uploads'); // Your image folder path
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter
+});
 
+// Serve the /uploads folder for static file access
+app.use('/uploads', express.static(IMAGE_FOLDER));
+
+// GET route for fetching all image URLs from the uploads folder
 app.get('/images', (req, res) => {
   fs.readdir(IMAGE_FOLDER, (err, files) => {
     if (err) {
       return res.status(500).send('Error reading directory');
     }
-    // Filter out non-image files if needed
+
+    // Filter only image files and return URLs
     const imageUrls = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file))
-                           .map(file => `/images/${file}`);
+                           .map(file => `http://localhost:${port}/uploads/${file}`); // Full URL to the images
+
     res.json(imageUrls);
   });
 });
 
-// POST route for uploading face image along with WebAuthn registration
+// POST route for uploading face images and registering biometric data
 app.post('/upload', upload.single('faceImage'), async (req, res) => {
   const { walletAddress, credential } = req.body;
-  
+
   // Check if face image is uploaded
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -63,16 +84,14 @@ app.post('/upload', upload.single('faceImage'), async (req, res) => {
     await registerWebAuthnCredential(biometricHash, walletAddress);  // Register the credential
 
     // Return the uploaded file URL along with the WebAuthn registration success
-    res.json({ 
-      message: 'Biometric data and face image registered successfully!', 
-      referenceImageUrl: `/uploads/${req.file.filename}` 
+    res.json({
+      message: 'Biometric data and face image registered successfully!',
+      referenceImageUrl: `http://localhost:${port}/uploads/${req.file.filename}` // Full URL to the uploaded image
     });
   } catch (error) {
     res.status(500).json({ error: 'Error registering biometric data', details: error });
   }
 });
-
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Endpoint to verify WebAuthn biometric credentials
 app.post('/verify', async (req, res) => {
@@ -85,17 +104,6 @@ app.post('/verify', async (req, res) => {
     res.status(500).json({ error: 'Error verifying biometric data', details: error });
   }
 });
-
-
-// Endpoint to get reference image URL or other data
-app.post('/data', upload.single('faceImage'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  res.json({ referenceImageUrl: `/uploads/${req.file.filename}` });
-});
-
-
 
 // Start the server
 app.listen(port, () => {
