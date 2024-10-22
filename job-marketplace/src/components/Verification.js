@@ -12,7 +12,9 @@ const FaceVerification = () => {
   const navigate = useNavigate(); // Hook for navigation after successful login
 
   const MODEL_URL = '/models'; 
+  const imageBaseUrl = 'https://process-implementation-design-for-q3i5.onrender.com'; // Base URL for images
 
+  // Load face-api models
   useEffect(() => {
     const loadModels = async () => {
       try {
@@ -20,7 +22,7 @@ const FaceVerification = () => {
         await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL) // Expression recognition
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL); // Expression recognition
 
         setModelsLoaded(true);
         console.log('Models loaded successfully');
@@ -32,19 +34,31 @@ const FaceVerification = () => {
     loadModels();
   }, []);
 
-  useEffect(() => {
-    const importAll = (r) => {
-      let images = [];
-      r.keys().map((item) => images.push(r(item)));
-      return images;
-    };
+  // Fetch the image filenames from the server
+  const fetchImageFilenames = async () => {
+    try {
+      const response = await fetch(`${imageBaseUrl}/images`); // Assuming there's an API endpoint that returns image filenames
+      if (!response.ok) {
+        throw new Error('Failed to fetch image filenames');
+      }
+      return await response.json(); // Assuming it returns a JSON array of image filenames
+    } catch (err) {
+      console.error('Error fetching image filenames:', err);
+      setError('Error fetching reference images');
+      return [];
+    }
+  };
 
-    const images = importAll(require.context('../Job-marketplace-backend/uploads', false, /\.(jpg|jpeg|png|gif)$/));
+  // Load reference images and their face descriptors
+  useEffect(() => {
     const loadReferenceImages = async () => {
+      const imageFilenames = await fetchImageFilenames(); // Get all image filenames
       const descriptors = [];
-      for (const img of images) {
+
+      for (const filename of imageFilenames) {
+        const imageUrl = `${imageBaseUrl}/${filename}`;
         const image = new Image();
-        image.src = img;
+        image.src = imageUrl;
 
         image.onload = async () => {
           const detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
@@ -53,14 +67,16 @@ const FaceVerification = () => {
           }
         };
       }
-      setReferenceDescriptors(descriptors);
+
+      setReferenceDescriptors(descriptors); // Set the reference descriptors once all are loaded
     };
 
     if (modelsLoaded) {
-      loadReferenceImages();
+      loadReferenceImages(); // Load reference images after models are loaded
     }
   }, [modelsLoaded]);
 
+  // Capture image from webcam and verify against reference descriptors
   const captureAndVerify = async () => {
     if (webcamRef.current && modelsLoaded && referenceDescriptors.length > 0) {
       const capturedImage = webcamRef.current.getScreenshot();
