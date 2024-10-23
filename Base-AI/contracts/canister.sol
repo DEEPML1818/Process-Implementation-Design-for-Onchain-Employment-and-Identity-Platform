@@ -100,9 +100,8 @@ contract AICanister {
 
     // Get job details from MultiSigWalletFactory
     function getJobDetails(uint jobId) public view returns (string memory title, string memory description, string memory milestones, uint payment) {
-        // Directly access job data from the factory contract
-        MultiSigWalletFactory.Job storage job = factory.getJob(jobId).data; // Use storage instead of memory
+        (string memory jobTitle, string memory jobDescription, string memory jobMilestones, uint jobPayment) = factory.getJob(jobId);
 
-        return (job.title, job.description, job.milestones, job.payment);
+        return (jobTitle, jobDescription, jobMilestones, jobPayment);
     }
 }
