@@ -20,7 +20,7 @@ function JobDetails({ wallet }) {
     async function fetchJobDetails(id) {
         try {
             const FACTORY_ABI = abimultisigfac;
-            const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";
+            const FACTORY_ADDRESS = "0xb923DcE82100aBF8181354e9572ed6C61De8C52B";
             const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
             const job = await factoryContract.getJob(id);
             setJobDetails(job);

@@ -2,9 +2,47 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/canister.sol": {
-      "lastModificationDate": 1729642659346,
-      "contentHash": "c05b1daf9a0d616d5372b8e07dbebd12",
+      "lastModificationDate": 1729679823846,
+      "contentHash": "0b00131d431cfc1cccc1529340ef2dcb",
       "sourceName": "contracts/canister.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./WorkerInfo.sol",
+        "./Factory_multisig.sol"
+      ],
+      "versionPragmas": [
+        "^0.4.0"
+      ],
+      "artifacts": [
+        "AICanister"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/BiometricStorage.sol": {
+      "lastModificationDate": 1729679865142,
+      "contentHash": "8a1ed1091a633cd2eede6d1f8dcd057c",
+      "sourceName": "contracts/BiometricStorage.sol",
       "solcConfig": {
         "version": "0.4.25",
         "settings": {
@@ -33,7 +71,264 @@
         "^0.4.0"
       ],
       "artifacts": [
-        "AICanister"
+        "BiometricStorage_MetaTasker"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/Factory.sol": {
+      "lastModificationDate": 1729679866042,
+      "contentHash": "92e0b9b943b58e23df33a5c9382f081b",
+      "sourceName": "contracts/Factory.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Security.sol"
+      ],
+      "versionPragmas": [
+        "^0.4.15"
+      ],
+      "artifacts": [
+        "Escrow",
+        "Factory"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/Security.sol": {
+      "lastModificationDate": 1729679865818,
+      "contentHash": "d37adf2e00fa4e790aeeed6d3368c609",
+      "sourceName": "contracts/Security.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.4.0"
+      ],
+      "artifacts": [
+        "Security_MetaTasker"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/Factory_multisig.sol": {
+      "lastModificationDate": 1729680099118,
+      "contentHash": "fea54abf2ffa388231b831d8894e0b77",
+      "sourceName": "contracts/Factory_multisig.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Factory.sol",
+        "./Multisigwallet.sol",
+        "./Security.sol",
+        "./WorkerInfo.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.21 <0.6.0"
+      ],
+      "artifacts": [
+        "MultiSigWalletFactory"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/Multisigwallet.sol": {
+      "lastModificationDate": 1729679865478,
+      "contentHash": "191384d0604b17e470e9cfebeca2c8d7",
+      "sourceName": "contracts/Multisigwallet.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Security.sol"
+      ],
+      "versionPragmas": [
+        "^0.4.15"
+      ],
+      "artifacts": [
+        "MultiSigWallet"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/WorkerInfo.sol": {
+      "lastModificationDate": 1729679865582,
+      "contentHash": "ad4058b53dc4a56c4484ea78db25f1e8",
+      "sourceName": "contracts/WorkerInfo.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Factory_multisig.sol"
+      ],
+      "versionPragmas": [
+        "^0.4.0"
+      ],
+      "artifacts": [
+        "WorkerInfo_MetaTasker"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/Multisigwallet1.sol": {
+      "lastModificationDate": 1729679865914,
+      "contentHash": "bc487433988b5fad889a07acd1010df7",
+      "sourceName": "contracts/Multisigwallet1.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.4.15"
+      ],
+      "artifacts": [
+        "MultiSigWallet"
+      ]
+    },
+    "/workspaces/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI/contracts/SecurityContract.sol": {
+      "lastModificationDate": 1729679865706,
+      "contentHash": "80cf2a1d448b64e887e3e751cf3e807f",
+      "sourceName": "contracts/SecurityContract.sol",
+      "solcConfig": {
+        "version": "0.4.25",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.4.0"
+      ],
+      "artifacts": [
+        "SecurityContract"
       ]
     }
   }

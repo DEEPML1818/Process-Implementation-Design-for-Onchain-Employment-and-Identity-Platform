@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import Webcam from 'react-webcam';
 import { useNavigate } from 'react-router-dom';
-import { ethers } from 'ethers';
-import YOUR_WORKER_INFO_CONTRACT_ABI from '../path/to/YourWorkerInfoContract.json'; // Import your contract ABI
+import { ethers } from 'ethers';  
+import YOUR_WORKER_INFO_CONTRACT_ABI from './WorkerInfo.json'; // Import your contract ABI
 
 const FaceVerification = () => {
   const webcamRef = useRef(null);
@@ -102,7 +102,7 @@ const FaceVerification = () => {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(
-      'YOUR_WORKER_INFO_CONTRACT_ADDRESS', // Replace with your contract address
+      '0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F', // Replace with your contract address
       YOUR_WORKER_INFO_CONTRACT_ABI,
       provider
     );

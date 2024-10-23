@@ -17,7 +17,7 @@ const Register = ({ onLogin }) => {
   const webcamRef = useRef(null);
 
   const MODEL_URL = '/models'; // Replace with the correct model path
-  const WORKER_INFO_ADDRESS = "YOUR_WORKER_INFO_CONTRACT_ADDRESS"; // Replace with your contract address
+  const WORKER_INFO_ADDRESS = "0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F"; // Replace with your contract address
 
   // Load face-api models
   useEffect(() => {
