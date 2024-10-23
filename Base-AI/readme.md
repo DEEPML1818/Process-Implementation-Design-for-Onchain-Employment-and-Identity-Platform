@@ -1,9 +1,5 @@
-
-```
-
 ### Instructions for Use
 
-```markdown
 # Project Overview: Decentralized Employment and Identity Platform
 
 ## Introduction
@@ -66,10 +62,10 @@ The **Decentralized Employment and Identity Platform** is designed to revolution
 
 This platform aims to create a fair, transparent, and efficient job market by leveraging blockchain technology. By removing intermediaries and providing a secure way to connect workers and employers, it has the potential to transform the employment landscape.
 
-```
 
 
-```markdown
+
+
 # Smart Contract Project
 
 This project consists of a set of smart contracts designed for a decentralized employment and identity platform. It includes functionality for worker registration, job creation, and AI-based worker matching.
@@ -93,8 +89,8 @@ This project consists of a set of smart contracts designed for a decentralized e
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
-   cd your-repo-name
+   git clone [https://github.com/yourusername/your-repo-name.git](https://github.com/DEEPML1818/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform.git)
+   cd Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI
    ```
 
 2. **Install dependencies:**
