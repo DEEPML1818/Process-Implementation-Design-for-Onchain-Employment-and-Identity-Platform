@@ -89,7 +89,7 @@ This project consists of a set of smart contracts designed for a decentralized e
 1. **Clone the repository:**
 
    ```bash
-   git clone [https://github.com/yourusername/your-repo-name.git](https://github.com/DEEPML1818/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform.git)
+   git clone (https://github.com/DEEPML1818/Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform.git)
    cd Process-Implementation-Design-for-Onchain-Employment-and-Identity-Platform/Base-AI
    ```
 
