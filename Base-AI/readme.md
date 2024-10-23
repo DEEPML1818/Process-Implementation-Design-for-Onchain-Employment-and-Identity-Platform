@@ -103,18 +103,12 @@ This project consists of a set of smart contracts designed for a decentralized e
 
 ### Local Development
 
-1. **Start a local Ethereum network:**
-
-   ```bash
-   npx hardhat node
-   ```
-
-2. **Deploy the contracts:**
+1. **Deploy the contracts:**
 
    Open another terminal window and run:
 
    ```bash
-   npx hardhat run scripts/deploy.js --network localhost
+   npx hardhat run scripts/deploy.js --network base-sepolia
    ```
 
 ### Running Tests
@@ -122,7 +116,7 @@ This project consists of a set of smart contracts designed for a decentralized e
 To test the smart contracts, use the following command:
 
 ```bash
-npx hardhat run scripts/test.js --network localhost
+npx hardhat run scripts/test.js --network base-sepolia
 ```
 
 This will deploy the contracts and run the test script to verify their functionality.
