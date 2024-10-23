@@ -14,22 +14,26 @@ async function main() {
     await security.deployed();
     console.log("Security contract deployed to:", security.address);
 
+    // Deploy MultiSigWalletFactory contract
+    console.log("Deploying MultiSigWalletFactory contract...");
+    const MultiSigWalletFactory = await ethers.getContractFactory("MultiSigWalletFactory");
+    const multiSigWalletFactory = await MultiSigWalletFactory.deploy(security.address);
+    await multiSigWalletFactory.deployed();
+    console.log("MultiSigWalletFactory contract deployed to:", multiSigWalletFactory.address);
 
-    // Deploy WorkerInfo contract
+    // Deploy WorkerInfo contract with the address of MultiSigWalletFactory
     console.log("Deploying WorkerInfo contract...");
     const WorkerInfo = await ethers.getContractFactory("WorkerInfo_MetaTasker");
-    const workerInfo = await WorkerInfo.deploy("0xb923DcE82100aBF8181354e9572ed6C61De8C52B");
+    const workerInfo = await WorkerInfo.deploy(multiSigWalletFactory.address);
     await workerInfo.deployed();
     console.log("WorkerInfo contract deployed to:", workerInfo.address);
 
-    // Deploy BiometricStorage contract
-    console.log("Deploying BiometricStorage contract...");
-    const BiometricStorage = await ethers.getContractFactory("BiometricStorage_MetaTasker");
-    const biometricStorage = await BiometricStorage.deploy();
-    await biometricStorage.deployed();
-    console.log("BiometricStorage contract deployed to:", biometricStorage.address);
-
-   
+    // Deploy AICanister contract with dependencies
+    console.log("Deploying AICanister contract...");
+    const AICanister = await ethers.getContractFactory("AICanister");
+    const aiCanister = await AICanister.deploy(multiSigWalletFactory.address, workerInfo.address);
+    await aiCanister.deployed();
+    console.log("AICanister contract deployed to:", aiCanister.address);
 }
 
 // Execute the main function and handle errors
