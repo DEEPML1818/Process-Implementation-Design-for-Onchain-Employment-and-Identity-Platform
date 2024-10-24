@@ -20,7 +20,7 @@ module.exports = {
           },
           'base-sepolia': {
               url: `https://sepolia.base.org`,  // Replace with your Infura URL or Alchemy URL
-              accounts: [`c5a640429beb585a609e26cfa2f41e7091447ecb4e0a961c36e3d7a643ab1815`],  // Private key of the deployer (ensure it is stored safely)
+              accounts: [``],  // Private key of the deployer (ensure it is stored safely)
           },
       },
     etherscan: {
