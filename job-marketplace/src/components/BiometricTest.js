@@ -26,7 +26,7 @@ const BiometricTest = ({ walletAddress }) => {
     formData.append('credential', JSON.stringify(credential)); // Add WebAuthn credential
   
     // Post to server
-    const response = await fetch('https://process-implementation-design-for-q3i5.onrender.com/upload', {
+    const response = await fetch('https://process-implementation-design-for-5ml0.onrender.com/upload', {
       method: 'POST',
       body: formData
     });

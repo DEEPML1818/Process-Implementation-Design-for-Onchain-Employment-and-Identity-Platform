@@ -15,7 +15,7 @@ const FaceVerification = () => {
   const navigate = useNavigate();
 
   const MODEL_URL = '/models';
-  const imageBaseUrl = 'https://process-implementation-design-for-q3i5.onrender.com'; // Base URL for images
+  const imageBaseUrl = 'https://process-implementation-design-for-5ml0.onrender.com'; // Base URL for images
 
   // Load face-api models
   useEffect(() => {
