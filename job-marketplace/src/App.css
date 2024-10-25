@@ -1,23 +1,52 @@
+/* Global Styles */
 body {
   font-family: 'Arial', sans-serif;
   background-color: #f8f9fa; /* Light background */
   color: #333; /* Dark text for readability */
   margin: 0;
   padding: 0;
+  line-height: 1.6; /* Improves text readability */
 }
 
 .app-container {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: white;
+  border-radius: 8px; /* Rounded corners */
 }
 
+/* Headings */
 h1 {
   text-align: center;
   color: #0070f3; /* Primary color for headings */
   margin-bottom: 30px;
+  font-size: 2.5em; /* Larger, more prominent */
+  letter-spacing: 1px;
 }
 
+/* Navbar */
+.navbar {
+  background-color: #343a40; /* Dark background for navbar */
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a light shadow */
+  border-bottom: 3px solid #0070f3; /* Accent with primary color */
+}
+
+.navbar a {
+  color: #ffffff; /* White text in navbar */
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold; /* Bold for clarity */
+  transition: color 0.3s ease-in-out; /* Smooth color transition */
+}
+
+.navbar a:hover {
+  color: #00d8ff; /* Lighter color on hover */
+}
+
+/* Overlay */
 .read-only-overlay {
   position: fixed;
   top: 0;
@@ -29,29 +58,18 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure overlay is above all content */
+  z-index: 1000;
 }
 
 .overlay-message {
   font-size: 20px;
   text-align: center;
+  padding: 20px;
+  background-color: rgba(50, 50, 50, 0.8); /* Slightly darker background */
+  border-radius: 8px;
 }
 
-.navbar {
-  background-color: #343a40; /* Dark background for navbar */
-  padding: 15px;
-}
-
-.navbar a {
-  color: #ffffff; /* White text in navbar */
-  margin: 0 15px;
-  text-decoration: none;
-}
-
-.navbar a:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-
+/* Buttons */
 button {
   background-color: #0070f3; /* Primary button color */
   color: white;
@@ -59,8 +77,31 @@ button {
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s; /* Smooth transition */
+  font-size: 1em; /* Slightly larger for visibility */
 }
 
 button:hover {
   background-color: #005bb5; /* Darker shade on hover */
+  transform: translateY(-2px); /* Lift effect */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2em;
+  }
+
+  .navbar {
+    padding: 10px;
+  }
+
+  .navbar a {
+    margin: 0 10px;
+    font-size: 0.9em; /* Smaller font for smaller screens */
+  }
+
+  button {
+    padding: 8px 16px;
+  }
 }

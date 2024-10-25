@@ -1,0 +1,146 @@
+[
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "workers",
+      "outputs": [
+        {
+          "name": "walletAddress",
+          "type": "address"
+        },
+        {
+          "name": "skillset",
+          "type": "string"
+        },
+        {
+          "name": "exists",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_skillset",
+          "type": "string"
+        }
+      ],
+      "name": "registerWorker",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_owners",
+          "type": "address[]"
+        },
+        {
+          "name": "_required",
+          "type": "uint256"
+        },
+        {
+          "name": "_title",
+          "type": "string"
+        },
+        {
+          "name": "_description",
+          "type": "string"
+        },
+        {
+          "name": "_milestones",
+          "type": "string"
+        },
+        {
+          "name": "_payment",
+          "type": "uint256"
+        }
+      ],
+      "name": "createJobForWorker",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_workerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getWorker",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "factory",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_factoryAddress",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "walletAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "skillset",
+          "type": "string"
+        }
+      ],
+      "name": "WorkerRegistered",
+      "type": "event"
+    }
+  ]
