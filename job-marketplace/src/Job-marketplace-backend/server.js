@@ -69,7 +69,6 @@ app.get('/images', (req, res) => {
   });
 });
 
-// POST route for uploading face images and registering biometric data
 app.post('/upload', upload.single('faceImage'), async (req, res) => {
   const { walletAddress, credential } = req.body;
 
@@ -89,7 +88,8 @@ app.post('/upload', upload.single('faceImage'), async (req, res) => {
       referenceImageUrl: `http://localhost:${port}/uploads/${req.file.filename}` // Full URL to the uploaded image
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error registering biometric data', details: error });
+    console.error('Error registering biometric data:', error);  // <-- Log the error here
+    res.status(500).json({ error: 'Error registering biometric data', details: error.message });
   }
 });
 
