@@ -37,22 +37,22 @@ const storage = multer.diskStorage({
   }
 });
 
-// Validate file types (accept only images)
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true); // Accept image files
-  } else {
-    cb(new Error('Invalid file type. Only image files are allowed.'), false);
-  }
-};
+
 
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter
+  storage: storage
 });
 
 // Serve the /uploads folder for static file access
-app.use('/uploads', express.static(IMAGE_FOLDER));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Endpoint to get reference image URL or other data
+app.post('/data', upload.single('faceImage'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  res.json({ referenceImageUrl: `/uploads/${req.file.filename}` });
+});
 
 // GET route for fetching all image URLs from the uploads folder
 app.get('/images', (req, res) => {
@@ -70,7 +70,13 @@ app.get('/images', (req, res) => {
 });
 
 app.post('/upload', upload.single('faceImage'), async (req, res) => {
+  res.json({ message: 'Image uploaded successfully!' });
   const { walletAddress, credential } = req.body;
+
+  const faceImage = req.file ? req.file.path : null;
+
+  console.log('Request Body:', req.body); // Debugging line
+  console.log('Uploaded File:', req.file); // Debugging line
 
   // Check if face image is uploaded
   if (!req.file) {
@@ -87,6 +93,18 @@ app.post('/upload', upload.single('faceImage'), async (req, res) => {
       message: 'Biometric data and face image registered successfully!',
       referenceImageUrl: `http://localhost:${port}/uploads/${req.file.filename}` // Full URL to the uploaded image
     });
+    console.log('Biometric data and face image registered successfully!');
+    
+    const newUser = new User({
+      Biodatas: {
+        biometricHash,
+        walletAddress,
+        faceImage
+      }
+    });
+    
+    await newUser.save();
+    res.status(201).json({ message: 'User data submitted successfully!' });
   } catch (error) {
     console.error('Error registering biometric data:', error);  // <-- Log the error here
     res.status(500).json({ error: 'Error registering biometric data', details: error.message });
