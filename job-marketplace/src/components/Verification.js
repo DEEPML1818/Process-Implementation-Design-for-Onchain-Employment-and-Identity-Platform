@@ -26,7 +26,7 @@ const FaceVerification = () => {
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
         await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-
+  
         setModelsLoaded(true);
         console.log('Models loaded successfully');
       } catch (err) {
@@ -36,6 +36,7 @@ const FaceVerification = () => {
     };
     loadModels();
   }, []);
+  
 
   // Fetch image filenames from the server
   const fetchImageFilenames = async () => {
@@ -54,24 +55,42 @@ const FaceVerification = () => {
   useEffect(() => {
     const loadReferenceImages = async () => {
       const imageFilenames = await fetchImageFilenames();
-      const descriptors = await Promise.all(
-        imageFilenames.map(async (filename) => {
-          const imageUrl = `${imageBaseUrl}/${filename}`;
-          const image = new Image();
-          image.src = imageUrl;
-          await new Promise((resolve) => (image.onload = resolve));
-          const detection = await faceapi
-            .detectSingleFace(image)
-            .withFaceLandmarks()
-            .withFaceDescriptor();
-          return detection ? detection.descriptor : null;
-        })
-      );
-      setReferenceDescriptors(descriptors.filter((desc) => desc !== null));
-    };
+      const descriptors = [];
+  
+      for (const filename of imageFilenames) {
+        const imageUrl = `${filename}`;
+        console.log('Loading image:', imageUrl);
 
-    if (modelsLoaded) loadReferenceImages();
+        const image = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = imageUrl;
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+        });
+  
+        const detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
+        if (detection) {
+          descriptors.push(detection.descriptor);
+          console.log(`Loaded descriptor for ${filename}`);
+        } else {
+          console.warn(`No face detected in ${filename}`);
+        }
+      }
+  
+      if (descriptors.length === 0) {
+        console.error('No descriptors loaded.');
+        setError('Error loading reference descriptors');
+      } else {
+        console.log('Descriptors loaded:', descriptors.length);
+        setReferenceDescriptors(descriptors);
+      }
+    };
+  
+    if (modelsLoaded) {
+      loadReferenceImages();
+    }
   }, [modelsLoaded]);
+  
 
   // Connect to the Ethereum wallet
   const connectWallet = async () => {
@@ -110,44 +129,51 @@ const FaceVerification = () => {
     }
   };
 
-  // Capture image from webcam and verify against reference descriptors
   const captureAndVerify = async () => {
-    if (!modelsLoaded || referenceDescriptors.length === 0) {
-      setError('Please ensure models are loaded and descriptors are available.');
+    if (!modelsLoaded) {
+      setError('Please wait for models to load.');
       return;
     }
-    
+  
+    if (referenceDescriptors.length === 0) {
+      setError('Reference descriptors are not available.');
+      return;
+    }
+  
     if (walletAddress && await isRegisteredInContract(walletAddress)) {
       if (webcamRef.current) {
         const capturedImage = webcamRef.current.getScreenshot();
         const img = new Image();
         img.src = capturedImage;
+  
         img.onload = async () => {
-          const detection = await faceapi
-            .detectSingleFace(img)
-            .withFaceLandmarks()
-            .withFaceDescriptor();
+          const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
           if (detection) {
             const distances = referenceDescriptors.map(descriptor =>
               faceapi.euclideanDistance(detection.descriptor, descriptor)
             );
             const minDistance = Math.min(...distances);
-            const threshold = 0.5;
+            const threshold = 0.5; // Set threshold for face similarity
             if (minDistance < threshold) {
               setIsVerified(true);
               console.log('Face verified successfully!');
-              setTimeout(() => navigate('/dashboard'), 1000);
+              setTimeout(() => {
+                navigate('/dashboard'); // Navigate to dashboard after successful verification
+              }, 1000);
             } else {
               setIsVerified(false);
               console.log('Face verification failed.');
             }
           }
         };
+      } else {
+        setError('Webcam not available.');
       }
     } else {
       setError('Your wallet address is not registered. Please register first.');
     }
   };
+  
 
   return (
     <div>
