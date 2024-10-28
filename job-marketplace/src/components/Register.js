@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import { ethers } from 'ethers';
 import Webcam from 'react-webcam';
-import { createCredential } from '../utils/webAuthnUtils'; // WebAuthn utility
 import workerInfoABI from './WorkerInfo.json'; // Import your ABI
 import './Home.css';
 
@@ -16,10 +15,9 @@ const Register = ({ onLogin }) => {
   const [skillset, setSkillset] = useState('');
   const webcamRef = useRef(null);
 
-  const MODEL_URL = '/models'; // Replace with the correct model path
-  const WORKER_INFO_ADDRESS = "0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F"; // Replace with your contract address
+  const MODEL_URL = '/models';
+  const WORKER_INFO_ADDRESS = "0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F";
 
-  // Load face-api models
   useEffect(() => {
     const loadModels = async () => {
       try {
@@ -38,13 +36,11 @@ const Register = ({ onLogin }) => {
     loadModels();
   }, []);
 
-  // Capture image from webcam
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setCapturedImage(imageSrc);
   };
 
-  // Wallet connect logic
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
@@ -63,7 +59,6 @@ const Register = ({ onLogin }) => {
     }
   };
 
-  // Register user by pairing face image with wallet address and WebAuthn (Fingerprint)
   const handleRegister = async () => {
     if (!walletAddress) {
       setError('Please connect your wallet.');
@@ -81,47 +76,37 @@ const Register = ({ onLogin }) => {
     }
 
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
-      // WebAuthn credential creation (for fingerprint)
-      const credential = await createCredential(); // Fingerprint credential creation
-
-      // Fetch the image blob from the captured image
       const imageBlob = await fetch(capturedImage).then((res) => res.blob());
-
-      // Prepare the form data for face image upload
       const formData = new FormData();
       formData.append('walletAddress', walletAddress);
       formData.append('faceImage', imageBlob, 'capturedImage.jpg');
-      formData.append('credential', JSON.stringify(credential)); // WebAuthn credential
 
-      // Simulate registration request
-      const response = await fetch('https://process-implementation-design-for-5ml0.onrender.com/upload', {
+      const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData,
       });
 
       const result = await response.json();
       if (result.message) {
-        // Register skillset in the WorkerInfo contract
         await registerSkillset(skillset);
         setIsRegistered(true);
         setLoading(false);
         console.log('Registration successful');
-        onLogin(); // Log the user in after successful registration
+        onLogin();
       } else {
         setError('Registration failed. Try again.');
         setLoading(false);
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setError(error.message || 'An error occurred during registration.'); // Ensure error is a string
+      setError(error.message || 'An error occurred during registration.');
       setLoading(false);
     }
   };
 
-  // Register skillset in WorkerInfo contract
   const registerSkillset = async (skillset) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
@@ -150,29 +135,15 @@ const Register = ({ onLogin }) => {
 
       <div className="face-recognition">
         <h3>Step 2: Face Recognition</h3>
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          className="webcam"
-        />
+        <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="webcam" />
         <button onClick={captureImage}>Capture Face</button>
 
-        {capturedImage && (
-          <div className="captured-image">
-            <img src={capturedImage} alt="Captured Face" />
-          </div>
-        )}
+        {capturedImage && <div className="captured-image"><img src={capturedImage} alt="Captured Face" /></div>}
       </div>
 
       <div className="skillset-input">
         <h3>Step 3: Enter Your Skillset</h3>
-        <input
-          type="text"
-          value={skillset}
-          onChange={(e) => setSkillset(e.target.value)}
-          placeholder="Enter your skillset"
-        />
+        <input type="text" value={skillset} onChange={(e) => setSkillset(e.target.value)} placeholder="Enter your skillset" />
       </div>
 
       <button className="register-btn" onClick={handleRegister} disabled={loading}>

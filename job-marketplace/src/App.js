@@ -22,6 +22,8 @@ function App() {
   const [address, setAddress] = useState(null);
   const [providerType, setProviderType] = useState(null); // Added to track Coinbase or MetaMask
 
+  const TARGET_CHAIN_ID = 84532; // Set to the desired chain ID (1 for Ethereum mainnet, 5 for Goerli, etc.)
+
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -32,12 +34,19 @@ function App() {
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send('eth_requestAccounts', []); // Prompt user to connect their wallet
+        const network = await provider.getNetwork();
+
+        if (network.chainId !== TARGET_CHAIN_ID) {
+          alert('Please connect to the Base Testnet!');
+          return;
+        }
+
         const signer = provider.getSigner();
         const userAddress = await signer.getAddress();
         setWallet(signer);
         setAddress(userAddress);
         setProviderType('MetaMask');
-        setIsAuthenticated(true);  // Mark user as authenticated after wallet connection
+        setIsAuthenticated(true);
       } catch (error) {
         console.error('MetaMask connection failed:', error);
       }
@@ -49,10 +58,10 @@ function App() {
   // Function to connect to Coinbase Wallet
   async function connectCoinbase() {
     try {
-      const APP_NAME = 'Web3 Job Marketplace';
-      const APP_LOGO_URL = 'https://example.com/logo.png';  // Add your app's logo here
-      const DEFAULT_ETH_JSONRPC_URL = 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'; // Replace with your RPC URL
-      const DEFAULT_CHAIN_ID = 1; // Ethereum mainnet
+      const APP_NAME = 'MetaTasker';
+      const APP_LOGO_URL = 'https://docs.base.org/img/logo_dark.svg';  // Add your app's logo here
+      const DEFAULT_ETH_JSONRPC_URL = '	https://sepolia.base.org'; // Replace with your RPC URL
+      const DEFAULT_CHAIN_ID = TARGET_CHAIN_ID; // Connect to specified chain
 
       const coinbaseWallet = new CoinbaseWalletSDK({
         appName: APP_NAME,
@@ -64,6 +73,13 @@ function App() {
       const provider = new ethers.providers.Web3Provider(ethereum);
       
       await provider.send('eth_requestAccounts', []);
+      const network = await provider.getNetwork();
+
+      if (network.chainId !== TARGET_CHAIN_ID) {
+        alert('Please connect to the Ethereum mainnet!');
+        return;
+      }
+
       const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
       
