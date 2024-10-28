@@ -64,31 +64,36 @@ const Register = ({ onLogin }) => {
       setError('Please connect your wallet.');
       return;
     }
-
+  
     if (!capturedImage) {
       setError('Please capture an image for face recognition.');
       return;
     }
-
+  
     if (!skillset) {
       setError('Please enter your skillset.');
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       const imageBlob = await fetch(capturedImage).then((res) => res.blob());
+      
+      // Create a unique filename
+      const timestamp = Date.now();
+      const uniqueImageName = `capturedImage_${timestamp}.jpg`; // Unique name using timestamp
+  
       const formData = new FormData();
       formData.append('walletAddress', walletAddress);
-      formData.append('faceImage', imageBlob, 'capturedImage.jpg');
-
+      formData.append('faceImage', imageBlob, uniqueImageName); // Use the unique name
+  
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData,
       });
-
+  
       const result = await response.json();
       if (result.message) {
         await registerSkillset(skillset);
@@ -106,7 +111,7 @@ const Register = ({ onLogin }) => {
       setLoading(false);
     }
   };
-
+  
   const registerSkillset = async (skillset) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
