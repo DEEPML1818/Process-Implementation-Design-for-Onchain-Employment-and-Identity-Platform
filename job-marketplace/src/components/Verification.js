@@ -11,11 +11,11 @@ const FaceVerification = () => {
   const [isVerified, setIsVerified] = useState(null);
   const [error, setError] = useState(null);
   const [referenceDescriptors, setReferenceDescriptors] = useState([]);
-  const [walletAddress, setWalletAddress] = useState(null); // State for wallet address
+  const [walletAddress, setWalletAddress] = useState(null);
   const navigate = useNavigate();
 
   const MODEL_URL = '/models';
-  const imageBaseUrl = 'https://process-implementation-design-for-5ml0.onrender.com'; // Base URL for images
+  const imageBaseUrl = 'http://localhost:5000';
 
   // Load face-api models
   useEffect(() => {
@@ -37,13 +37,11 @@ const FaceVerification = () => {
     loadModels();
   }, []);
 
-  // Fetch the image filenames from the server
+  // Fetch image filenames from the server
   const fetchImageFilenames = async () => {
     try {
       const response = await fetch(`${imageBaseUrl}/images`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch image filenames');
-      }
+      if (!response.ok) throw new Error('Failed to fetch image filenames');
       return await response.json();
     } catch (err) {
       console.error('Error fetching image filenames:', err);
@@ -56,27 +54,23 @@ const FaceVerification = () => {
   useEffect(() => {
     const loadReferenceImages = async () => {
       const imageFilenames = await fetchImageFilenames();
-      const descriptors = [];
-
-      for (const filename of imageFilenames) {
-        const imageUrl = `${imageBaseUrl}/${filename}`;
-        const image = new Image();
-        image.src = imageUrl;
-
-        image.onload = async () => {
-          const detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
-          if (detection) {
-            descriptors.push(detection.descriptor);
-          }
-        };
-      }
-
-      setReferenceDescriptors(descriptors);
+      const descriptors = await Promise.all(
+        imageFilenames.map(async (filename) => {
+          const imageUrl = `${imageBaseUrl}/${filename}`;
+          const image = new Image();
+          image.src = imageUrl;
+          await new Promise((resolve) => (image.onload = resolve));
+          const detection = await faceapi
+            .detectSingleFace(image)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+          return detection ? detection.descriptor : null;
+        })
+      );
+      setReferenceDescriptors(descriptors.filter((desc) => desc !== null));
     };
 
-    if (modelsLoaded) {
-      loadReferenceImages();
-    }
+    if (modelsLoaded) loadReferenceImages();
   }, [modelsLoaded]);
 
   // Connect to the Ethereum wallet
@@ -99,16 +93,15 @@ const FaceVerification = () => {
       setError('Ethereum wallet not detected');
       return false;
     }
-
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(
-      '0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F', // Replace with your contract address
+      '0x7f14CCD90b5200F275cdce3A20eB9eB722cb124F',
       YOUR_WORKER_INFO_CONTRACT_ABI,
       provider
     );
-
     try {
-      const isRegistered = await contract.isRegistered(address); // Replace with the actual method name from your contract
+      const workerData = await contract.getWorker(address);
+      const isRegistered = workerData && workerData.someField !== null;
       return isRegistered;
     } catch (err) {
       console.error('Error checking registration:', err);
@@ -119,34 +112,37 @@ const FaceVerification = () => {
 
   // Capture image from webcam and verify against reference descriptors
   const captureAndVerify = async () => {
+    if (!modelsLoaded || referenceDescriptors.length === 0) {
+      setError('Please ensure models are loaded and descriptors are available.');
+      return;
+    }
+    
     if (walletAddress && await isRegisteredInContract(walletAddress)) {
-      if (webcamRef.current && modelsLoaded && referenceDescriptors.length > 0) {
+      if (webcamRef.current) {
         const capturedImage = webcamRef.current.getScreenshot();
         const img = new Image();
         img.src = capturedImage;
-
         img.onload = async () => {
-          const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+          const detection = await faceapi
+            .detectSingleFace(img)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
           if (detection) {
             const distances = referenceDescriptors.map(descriptor =>
               faceapi.euclideanDistance(detection.descriptor, descriptor)
             );
             const minDistance = Math.min(...distances);
-            const threshold = 0.5; // Set threshold for face similarity
+            const threshold = 0.5;
             if (minDistance < threshold) {
               setIsVerified(true);
               console.log('Face verified successfully!');
-              setTimeout(() => {
-                navigate('/dashboard'); // Navigate to dashboard after successful verification
-              }, 1000);
+              setTimeout(() => navigate('/dashboard'), 1000);
             } else {
               setIsVerified(false);
               console.log('Face verification failed.');
             }
           }
         };
-      } else {
-        setError('Please ensure models are loaded and descriptors are available.');
       }
     } else {
       setError('Your wallet address is not registered. Please register first.');
@@ -165,15 +161,9 @@ const FaceVerification = () => {
         <p>Please capture your face for verification.</p>
       )}
 
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        width="640"
-        height="480"
-      />
+      <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" width="640" height="480" />
       <button onClick={captureAndVerify}>Login with Face</button>
-      <button onClick={connectWallet}>Connect Wallet</button> {/* Button to connect wallet */}
+      <button onClick={connectWallet}>Connect Wallet</button>
     </div>
   );
 };
