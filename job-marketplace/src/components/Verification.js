@@ -17,6 +17,7 @@ const FaceVerification = () => {
   const MODEL_URL = '/models';
   const imageBaseUrl = 'http://localhost:5000';
 
+  
   // Load face-api models
   useEffect(() => {
     const loadModels = async () => {
@@ -54,20 +55,34 @@ const FaceVerification = () => {
   // Load reference images and their face descriptors
   useEffect(() => {
     const loadReferenceImages = async () => {
+
+      const convertImageToDataUrl = async (imageUrl) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.src = imageUrl;
+        
+        await new Promise((resolve) => {
+          image.onload = resolve;
+        });
+      
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0);
+        return canvas.toDataURL();
+      };
+      
+
       const imageFilenames = await fetchImageFilenames();
       const descriptors = [];
-  
+    
       for (const filename of imageFilenames) {
         const imageUrl = `${filename}`;
-        console.log('Loading image:', imageUrl);
-
-        const image = await new Promise((resolve, reject) => {
-          const img = new Image();
-          img.src = imageUrl;
-          img.onload = () => resolve(img);
-          img.onerror = reject;
-        });
-  
+        const dataUrl = await convertImageToDataUrl(imageUrl);
+    
+        const image = await faceapi.fetchImage(dataUrl);
+    
         const detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
         if (detection) {
           descriptors.push(detection.descriptor);
@@ -76,7 +91,7 @@ const FaceVerification = () => {
           console.warn(`No face detected in ${filename}`);
         }
       }
-  
+    
       if (descriptors.length === 0) {
         console.error('No descriptors loaded.');
         setError('Error loading reference descriptors');
@@ -85,6 +100,7 @@ const FaceVerification = () => {
         setReferenceDescriptors(descriptors);
       }
     };
+    
   
     if (modelsLoaded) {
       loadReferenceImages();

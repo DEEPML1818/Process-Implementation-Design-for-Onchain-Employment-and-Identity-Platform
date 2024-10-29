@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ethers } from 'ethers';
 import multisigfactory from "../factory.json";
-import '../job.css';  // Importing the CSS file for styling
 
 function JobListings({ wallet }) {
   const [jobs, setJobs] = useState([]);
@@ -38,13 +37,13 @@ function JobListings({ wallet }) {
   }, [wallet]);
 
   return (
-    <div className="container">
-      <h2>Job Listings</h2>
-      <ul>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Job Listings</h2>
+      <ul style={styles.jobList}>
         {jobs.map((job, index) => (
-          <li key={index}>
-            <Link to={`/job/${job.contract}`}>
-              <p>Job Contract: {job.contract}</p>
+          <li key={index} style={styles.jobItem}>
+            <Link to={`/job/${job.contract}`} style={styles.jobLink}>
+              <p style={styles.jobText}>Job Contract: {job.contract}</p>
             </Link>
           </li>
         ))}
@@ -52,5 +51,50 @@ function JobListings({ wallet }) {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    marginBottom: '40px',
+  },
+  title: {
+    fontSize: '1.6em',
+    marginBottom: '20px',
+    color: '#1f2937',
+    textAlign: 'center',
+  },
+  jobList: {
+    listStyleType: 'none',
+    padding: 0,
+  },
+  jobItem: {
+    padding: '16px',
+    marginBottom: '12px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '6px',
+    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  },
+  jobLink: {
+    textDecoration: 'none',
+    color: '#1f2937',
+  },
+  jobText: {
+    fontSize: '1.1em',
+    color: '#333',
+  },
+  jobItemHover: {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 5px 10px rgba(0, 0, 0, 0.2)',
+  },
+};
+
+// Apply hover styles dynamically
+styles.jobItem[':hover'] = styles.jobItemHover;
 
 export default JobListings;

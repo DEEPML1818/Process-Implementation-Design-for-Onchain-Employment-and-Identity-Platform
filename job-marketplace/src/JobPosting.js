@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ethers } from "ethers";
 import abimultisigfac from './Factory_multisig.json';
 import { useNavigate } from 'react-router-dom';
-import './job.css';  // Importing CSS file for styling
+// import './job.css';  // Importing CSS file for styling
 
 function JobPosting({ wallet, onJobPosted, readOnly }) {
   const [title, setTitle] = useState("");
