@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import Navbar from './Navbar';
 import './App.css';
-
+ 
 // Lazy loaded components
 const JobListings = lazy(() => import('./pages/JobListings'));
 const JobDetails = lazy(() => import('./pages/JobDetails'));
