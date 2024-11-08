@@ -122,7 +122,7 @@ function App() {
         providerType={providerType}
       />
       <div className="app-container">
-        <h1>Web3 Job Marketplace</h1>
+        <h1>MetaTasker Job Marketplace</h1>
 
         {/* Lazy loading with suspense */}
         <Suspense fallback={<div>Loading...</div>}>

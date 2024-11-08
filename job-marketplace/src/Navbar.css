@@ -7,6 +7,11 @@
     padding: 1rem 2rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: #ffffff;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
 /* Reset body margin and padding */
@@ -15,15 +20,6 @@ body {
     padding: 0;
     background-color: #f3f4f6; /* Light, soft gray for main page */
     font-family: Arial, sans-serif; /* Set a clean font for the whole page */
-}
-
-/* Ensure the navbar spans the entire width */
-.navbar {
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
 }
 
 /* Additional padding for main content so it doesn't overlap with fixed navbar */
@@ -80,6 +76,28 @@ body {
     color: #e5e7eb; /* Soft white text */
     padding: 0.5rem 1rem;
     border-radius: 5px;
+}
+
+/* Network Dropdown Styling */
+.network-select {
+    padding: 0.4rem 1rem;
+    background-color: #374151; /* Dark gray to match wallet display */
+    color: #e5e7eb; /* Soft white text */
+    border: 1px solid #3b82f6; /* Same blue as wallet button */
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.network-select:focus {
+    outline: none;
+    border-color: #2563eb; /* Slightly darker blue on focus */
+}
+
+.network-select option {
+    background-color: #1f2937; /* Dark background for options */
+    color: #e5e7eb; /* Soft white text */
 }
 
 /* Modal Styling */

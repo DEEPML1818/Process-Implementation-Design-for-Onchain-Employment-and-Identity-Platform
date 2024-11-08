@@ -14,15 +14,22 @@ function JobListings({ wallet }) {
         const FACTORY_ADDRESS = "0xB3d9E2C3Ca370603398516608d9edFbbC0AC4a79";
     
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
+        await provider.send("eth_requestAccounts", []); // Prompt for wallet connection
         const signer = provider.getSigner();
     
         const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
-                
-        const jobCount = await factoryContract.getInstantiationCount();
-        let fetchedJobs = [];
     
-        for (let i = 0; i < Math.min(jobCount, 1000); i++) {
+        // Ensure the method exists before calling it
+        if (!factoryContract.getInstantiationCount) {
+          console.error("Contract does not have the getInstantiationCount function.");
+          return;
+        }
+  
+        const jobCount = await factoryContract.getInstantiationCount();
+        console.log('Job Count:', jobCount.toString());
+  
+        let fetchedJobs = [];
+        for (let i = 0; i < Math.min(jobCount.toNumber(), 1000); i++) {
           const jobAddress = await factoryContract.getInstantiation(i);
           fetchedJobs.push({ contract: jobAddress });
         }
@@ -30,11 +37,16 @@ function JobListings({ wallet }) {
         setJobs(fetchedJobs);
       } catch (error) {
         console.error('Error fetching jobs:', error);
+        if (error.reason) {
+          console.log('Revert reason:', error.reason);
+        }
+        alert('Failed to fetch jobs. Please try again.');
       }
     }
-    
+  
     fetchJobs();
   }, [wallet]);
+  
 
   return (
     <div style={styles.container}>

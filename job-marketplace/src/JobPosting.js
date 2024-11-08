@@ -14,37 +14,43 @@ function JobPosting({ wallet, onJobPosted, readOnly }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-
+  
     const jobData = { title, description, milestones, payment };
-
+  
     try {
       const FACTORY_ABI = abimultisigfac;
-      const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";  // Update with your factory contract address
-      const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
-
-      // Job-related parameters
-      const owners = [await wallet.getAddress()]; // Example: the employer is the only owner
-      const requiredConfirmations = 1; // Placeholder for required multisig confirmations
-
-      // Convert payment to wei
+      const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+  
+      const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+  
+      const ownerAddress = await signer.getAddress(); // Use as a single address
+      const requiredConfirmations = 1;
       const paymentInWei = ethers.utils.parseEther(payment);
-
-      // Call the createJob function
-      const transaction = await factoryContract.createJob(owners, requiredConfirmations, title, description, milestones, paymentInWei);
+  
+      const transaction = await factoryContract.createJob(
+        [ownerAddress], // Wrap the address in an array
+        requiredConfirmations,
+        title,
+        description,
+        milestones,
+        paymentInWei
+      );
+      
       const receipt = await transaction.wait();
-
-      // Notify parent component (JobListings) that a job has been posted
+  
       onJobPosted();
-
-      // Redirect to job listings after posting
       navigate('/job-listings');
-
       alert(`Job posted! Multisig Wallet Address: ${receipt.events[0].args.wallet}`);
     } catch (error) {
       console.error("Error posting job:", error);
       alert("Error posting job. Please try again.");
     }
   }
+  
+  
+  
 
   return (
     <><div>

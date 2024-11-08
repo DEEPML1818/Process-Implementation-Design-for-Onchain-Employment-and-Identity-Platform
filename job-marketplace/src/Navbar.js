@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ethers } from 'ethers'; // Add this import
+import { ethers } from 'ethers';
 import './Navbar.css';
 
 function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);  // Modal state for wallet selection
-    const [networkName, setNetworkName] = useState(''); // State for network name
+    const [modalOpen, setModalOpen] = useState(false);
+    const [networkName, setNetworkName] = useState('Unknown Network');
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -20,18 +20,14 @@ function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
         setModalOpen(false);
     };
 
-    // Function to get the current network name
-    const fetchNetworkName = async () => {
-        if (wallet && window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const network = await provider.getNetwork();
-            setNetworkName(network.name.charAt(0).toUpperCase() + network.name.slice(1)); // Capitalize the network name
-        }
+    // Handle network selection for Base Sepolia Testnet
+    const handleNetworkChange = () => {
+        setNetworkName("Base Sepolia Testnet");
     };
 
     useEffect(() => {
         if (wallet) {
-            fetchNetworkName();
+            handleNetworkChange();
         }
     }, [wallet]);
 
@@ -39,7 +35,7 @@ function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
         <>
             <nav className="navbar">
                 <div className="logo">
-                    <h2>Job Marketplace</h2>
+                    <h2>MetaTasker</h2>
                 </div>
 
                 {/* Menu Toggle for mobile responsiveness */}
@@ -66,9 +62,17 @@ function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
                     {!wallet ? (
                         <button onClick={openModal} className="wallet-btn">Connect Wallet</button>
                     ) : (
-                        <p className="wallet-address">
-                            {networkName} Network
-                        </p>
+                        <>
+                            <label htmlFor="network-select" className="network-label">Network:</label>
+                            <select
+                                id="network-select"
+                                value={networkName}
+                                onChange={handleNetworkChange}
+                                className="network-select"
+                            >
+                                <option value="Base Sepolia Testnet">Base Sepolia Testnet</option>
+                            </select>
+                        </>
                     )}
                 </div>
             </nav>
