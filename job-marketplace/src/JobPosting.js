@@ -19,7 +19,7 @@ function JobPosting({ wallet, onJobPosted, readOnly }) {
   
     try {
       const FACTORY_ABI = abimultisigfac;
-      const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";
+      const FACTORY_ADDRESS = "0xb923DcE82100aBF8181354e9572ed6C61De8C52B";
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
   
