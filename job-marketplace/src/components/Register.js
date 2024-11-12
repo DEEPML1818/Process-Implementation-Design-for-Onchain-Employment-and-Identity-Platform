@@ -122,7 +122,7 @@ const Register = ({ onLogin }) => {
       alert('Skillset successfully registered!');
     } catch (error) {
       console.error('Error registering skillset:', error);
-      setError('Error registering skillset');
+      setError('');
     }
   };
 
