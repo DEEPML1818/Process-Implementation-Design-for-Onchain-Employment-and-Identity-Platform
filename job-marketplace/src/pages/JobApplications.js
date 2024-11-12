@@ -40,7 +40,7 @@ function JobApplications() {
               resume: applicant.resume,
               isHired: applicant.isHired,
             }));
-
+            console.log(jobApplications)
             allApplications = [...allApplications, ...jobApplications];
           } catch (error) {
             console.error(`Error fetching applicants for job ${i}:`, error);
