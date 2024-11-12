@@ -51,10 +51,11 @@ function Navbar({ wallet, connectMetaMask, connectCoinbase, providerType }) {
                     <li><Link to="/job-listings" onClick={toggleMenu}>Job Listings</Link></li>
                     <li><Link to="/post-job" onClick={toggleMenu}>Post Job</Link></li>
                     <li><Link to="/chat/1" onClick={toggleMenu}>Chats</Link></li>
-                    <li><Link to="/previous-chats" onClick={toggleMenu}>Ticket history</Link></li>
+                    <li><Link to="/previous-chats" onClick={toggleMenu}>Ticket History</Link></li>
                     <li><Link to="/verify" onClick={toggleMenu}>Login</Link></li>
                     <li><Link to="/register" onClick={toggleMenu}>Sign Up</Link></li>
                     <li><Link to="/biometric-test" onClick={toggleMenu}>Biometric Test</Link></li>
+                    <li><Link to="/job-applications" onClick={toggleMenu}>Job Applications</Link></li> {/* New Link */}
                 </ul>
 
                 {/* Wallet Connection */}

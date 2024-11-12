@@ -15,6 +15,7 @@ const PreviousChats = lazy(() => import('./pages/PreviousChats'));
 const Home = lazy(() => import('./pages/Home'));
 const JobPosting = lazy(() => import('./JobPosting'));
 const BiometricTest = lazy(() => import('./components/BiometricTest'));
+const JobApplications = lazy(() => import('./pages/JobApplications')); // Import JobApplications
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -160,6 +161,7 @@ function App() {
             <Route path="/job/:jobId" element={renderWithRestriction(JobDetails)} />
             <Route path="/chat/:jobId" element={renderWithRestriction(Chat)} />
             <Route path="/previous-chats" element={renderWithRestriction(PreviousChats)} />
+            <Route path="/job-applications" element={<JobApplications />} /> {/* New Route */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>
