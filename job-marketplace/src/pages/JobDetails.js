@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { Contract } from 'ethers'; // Import Contract directly
+import { formatEther } from '@ethersproject/units'; // Import formatEther from the correct location
 import abimultisigfac from './Factory_multisig.json';
 
 function JobDetails({ wallet }) {
@@ -21,7 +22,7 @@ function JobDetails({ wallet }) {
         try {
             const FACTORY_ABI = abimultisigfac;
             const FACTORY_ADDRESS = "0xb923DcE82100aBF8181354e9572ed6C61De8C52B";
-            const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
+            const factoryContract = new Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet); // Use Contract
             const job = await factoryContract.getJob(id);
             setJobDetails(job);
             setLoading(false);
@@ -36,7 +37,7 @@ function JobDetails({ wallet }) {
             setApplying(true);
             const FACTORY_ABI = abimultisigfac;
             const FACTORY_ADDRESS = "0xb079272C54a743624ECCf48d6D4761099104d075";
-            const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
+            const factoryContract = new Contract(FACTORY_ADDRESS, FACTORY_ABI, wallet);
 
             const tx = await factoryContract.applyForJob(jobId, skillset, resume);
             await tx.wait();
@@ -61,7 +62,7 @@ function JobDetails({ wallet }) {
                     <p><strong>Title:</strong> {jobDetails.title}</p>
                     <p><strong>Description:</strong> {jobDetails.description}</p>
                     <p><strong>Milestones:</strong> {jobDetails.milestones}</p>
-                    <p><strong>Payment:</strong> {ethers.utils.formatEther(jobDetails.payment)} ETH</p>
+                    <p><strong>Payment:</strong> {formatEther(jobDetails.payment)} ETH</p>
                     <p><strong>Employer:</strong> {jobDetails.employer}</p>
                     <p><strong>Status:</strong> {jobDetails.isActive ? "Active" : "Inactive"}</p>
 

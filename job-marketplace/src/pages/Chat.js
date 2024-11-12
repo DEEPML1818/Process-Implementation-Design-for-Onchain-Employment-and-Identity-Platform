@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers'; // Updated import
 import * as PushAPI from '@pushprotocol/restapi';
-import { ChatWidget } from '@pushprotocol/uiweb';  // Correct import
+import { ChatWidget } from '@pushprotocol/uiweb';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -11,7 +11,7 @@ const Chat = () => {
   // Connect wallet function
   const connectWallet = async () => {
     if (window.ethereum) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new Web3Provider(window.ethereum); // Use Web3Provider directly
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const address = await signer.getAddress();

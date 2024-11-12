@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
-import { ethers } from 'ethers';
+import { Web3Provider } from "@ethersproject/providers"; // Import Web3Provider separately
+import { Contract } from "@ethersproject/contracts"; // Import Contract separately
 import Webcam from 'react-webcam';
 import workerInfoABI from './WorkerInfo.json'; // Import your ABI
 import './Home.css';
@@ -44,7 +45,7 @@ const Register = ({ onLogin }) => {
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new Web3Provider(window.ethereum);
         const accounts = await provider.send('eth_requestAccounts', []);
         const walletAddress = accounts[0];
         setWalletAddress(walletAddress);
@@ -80,20 +81,18 @@ const Register = ({ onLogin }) => {
   
     try {
       const imageBlob = await fetch(capturedImage).then((res) => res.blob());
-      
-      // Create a unique filename
       const timestamp = Date.now();
-      const uniqueImageName = `capturedImage_${timestamp}.jpg`; // Unique name using timestamp
-  
+      const uniqueImageName = `capturedImage_${timestamp}.jpg`;
+
       const formData = new FormData();
       formData.append('walletAddress', walletAddress);
-      formData.append('faceImage', imageBlob, uniqueImageName); // Use the unique name
-  
+      formData.append('faceImage', imageBlob, uniqueImageName);
+
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData,
       });
-  
+
       const result = await response.json();
       if (result.message) {
         await registerSkillset(skillset);
@@ -113,9 +112,9 @@ const Register = ({ onLogin }) => {
   };
   
   const registerSkillset = async (skillset) => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const workerInfoContract = new ethers.Contract(WORKER_INFO_ADDRESS, workerInfoABI, signer);
+    const workerInfoContract = new Contract(WORKER_INFO_ADDRESS, workerInfoABI, signer);
 
     try {
       const tx = await workerInfoContract.registerWorker(skillset);

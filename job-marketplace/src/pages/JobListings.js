@@ -1,69 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers';
+import { Contract } from 'ethers';
+import { formatEther } from '@ethersproject/units';
 import multisigfactory from "../Factory_multisig.json";
 
 function JobListings({ wallet }) {
   const [jobs, setJobs] = useState([]);
+  const [contractCount, setContractCount] = useState(0);
 
-  // Fetch jobs when component mounts or when wallet changes
+  const safeDecodeUtf8 = (field) => {
+    try {
+      return field && field.toString ? field.toString() : "";
+    } catch (error) {
+      console.warn("Failed to decode as UTF-8:", error);
+      return "";
+    }
+  };
+  
   useEffect(() => {
     async function fetchJobs() {
       try {
-        const FACTORY_ABI = multisigfactory;
-        const FACTORY_ADDRESS = "0xb923DcE82100aBF8181354e9572ed6C61De8C52B";
+        if (!window.ethereum) {
+          alert("Ethereum wallet not found. Please install MetaMask.");
+          return;
+        }
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []); // Prompt for wallet connection
+        const provider = new Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []); // Request accounts
         const signer = provider.getSigner();
-
-        const factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
-
+        const FACTORY_ADDRESS = "0xb923DcE82100aBF8181354e9572ed6C61De8C52B";
+        const factoryContract = new Contract(FACTORY_ADDRESS, multisigfactory, signer);
+        
         const jobCount = await factoryContract.getInstantiationCount();
-        console.log('Job Count:', jobCount.toString());
+        const jobCountNumber = parseInt(jobCount.toString());
+        setContractCount(jobCountNumber);
+        console.log("Total job count:", jobCountNumber);
 
         let fetchedJobs = [];
-        for (let i = 0; i < Math.min(jobCount.toNumber(), 1000); i++) {
-          const jobAddress = await factoryContract.getInstantiation(i);
-          
-          // Instantiate the job contract to fetch job details
-          const jobContract = new ethers.Contract(jobAddress, FACTORY_ABI, provider);
-          const jobDetails = await jobContract.getJob(i);
+        for (let i = 1; i <= jobCountNumber; i++) {
+          try {
+            const jobDetails = await factoryContract.getJob(i);
+            console.log(`Fetched job ${i} details:`, jobDetails);
 
-          fetchedJobs.push({
-            contract: jobAddress,
-            title: jobDetails.title,
-            description: jobDetails.description,
-            milestones: jobDetails.milestones,
-            payment: ethers.utils.formatEther(jobDetails.payment)
-          });
+            const job = {
+              title: safeDecodeUtf8(jobDetails.title),
+              description: safeDecodeUtf8(jobDetails.description),
+              milestones: safeDecodeUtf8(jobDetails.milestones),
+              payment: formatEther(jobDetails.payment),
+            };
+
+            fetchedJobs.push(job);
+          } catch (error) {
+            console.error(`Error fetching job at index ${i}:`, error);
+          }
         }
 
         setJobs(fetchedJobs);
+        console.log("Fetched all jobs:", fetchedJobs);
       } catch (error) {
-        console.error('Error fetching jobs:', error);
-        alert('Failed to fetch jobs. Please try again.');
+        console.error("Error fetching jobs:", error);
+        alert("Failed to fetch jobs. Please try again.");
       }
     }
-
+    
     fetchJobs();
   }, [wallet]);
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Job Listings</h2>
-      <ul style={styles.jobList}>
-        {jobs.map((job, index) => (
-          <li key={index} style={styles.jobItem}>
-            <Link to={`/job/${job.contract}`} style={styles.jobLink}>
-              <p style={styles.jobText}><strong>Job Title:</strong> {job.title}</p>
-              <p style={styles.jobText}><strong>Description:</strong> {job.description}</p>
-              <p style={styles.jobText}><strong>Milestones:</strong> {job.milestones}</p>
-              <p style={styles.jobText}><strong>Payment:</strong> {job.payment} ETH</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <p style={styles.contractCount}>Total Contracts: {contractCount}</p>
+      <div style={styles.jobContainer}>
+        {jobs.length > 0 ? (
+          jobs.map((job, index) => (
+            <div key={index} style={styles.jobBox}>
+              <p><strong>Title:</strong> {job.title}</p>
+              <p><strong>Description:</strong> {job.description}</p>
+              <p><strong>Milestones:</strong> {job.milestones}</p>
+              <p><strong>Payment:</strong> {job.payment} ETH</p>
+            </div>
+          ))
+        ) : (
+          <p>Loading jobs...</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -76,7 +96,6 @@ const styles = {
     backgroundColor: '#ffffff',
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    marginBottom: '40px',
   },
   title: {
     fontSize: '1.6em',
@@ -84,33 +103,23 @@ const styles = {
     color: '#1f2937',
     textAlign: 'center',
   },
-  jobList: {
-    listStyleType: 'none',
-    padding: 0,
-  },
-  jobItem: {
-    padding: '16px',
-    marginBottom: '12px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '6px',
-    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  },
-  jobLink: {
-    textDecoration: 'none',
-    color: '#1f2937',
-  },
-  jobText: {
-    fontSize: '1.1em',
+  contractCount: {
+    fontSize: '1.2em',
     color: '#333',
+    textAlign: 'center',
+    marginBottom: '20px',
   },
-  jobItemHover: {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 5px 10px rgba(0, 0, 0, 0.2)',
+  jobContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  jobBox: {
+    padding: '15px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)',
   },
 };
-
-// Apply hover styles dynamically
-styles.jobItem[':hover'] = styles.jobItemHover;
 
 export default JobListings;
